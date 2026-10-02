@@ -316,6 +316,16 @@ cron.schedule('0 7 * * *', async () => {
     }
 });
 
+// Render Web Service da bepul ishlashi uchun soxta Web Server (portni band qilish uchun)
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => res.send('Bot ishladi! 🚀'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Render server porti ${PORT} da ishga tushdi.`);
+});
+
 bot.launch().then(() => {
     console.log('Bot Node.js (Telegraf v2) da ishga tushdi...');
 });
