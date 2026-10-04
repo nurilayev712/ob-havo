@@ -316,18 +316,27 @@ cron.schedule('0 7 * * *', async () => {
     }
 });
 
-// Render Web Service da bepul ishlashi uchun soxta Web Server (portni band qilish uchun)
 const express = require('express');
 const app = express();
-app.get('/', (req, res) => res.send('Bot ishladi! 🚀'));
+
+app.get('/', (req, res) => res.send('Bot ishladi va Webhook orqali ulandi! 🚀'));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Render server porti ${PORT} da ishga tushdi.`);
-});
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL; // Render avtomat beradi
 
-bot.launch().then(() => {
-    console.log('Bot Node.js (Telegraf v2) da ishga tushdi...');
+if (RENDER_URL) {
+    // Renderda ishlayotgan bo'lsa Webhook ishlatamiz
+    const webhookPath = `/bot${token}`;
+    bot.telegram.setWebhook(`${RENDER_URL}${webhookPath}`);
+    app.use(bot.webhookCallback(webhookPath));
+    console.log(`Webhook o'rnatildi: ${RENDER_URL}`);
+} else {
+    // Kompyuterda ishlasa Polling
+    bot.launch().then(() => console.log('Bot Polling orqali ishga tushdi...'));
+}
+
+app.listen(PORT, () => {
+    console.log(`Express server porti ${PORT} da ishga tushdi.`);
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
