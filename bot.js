@@ -8,6 +8,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const token = '8653744492:AAHxdUwVkrKPhBraaas6eeBNjT-Vn1_FRmQ';
 const bot = new Telegraf(token);
+const ADMIN_PASSWORD = "havo_admin_2026";
 
 const DB_FILE = path.join(__dirname, 'database.json');
 let db = {};
@@ -18,7 +19,7 @@ const saveDb = () => fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 
 const getUser = (ctx) => {
     const id = ctx.chat?.id || ctx.from?.id;
-    if (!db[id]) db[id] = { lang: 'uz', subscribed: false };
+    if (!db[id]) db[id] = { lang: 'uz', subscribed: false, isAdmin: false };
     return db[id];
 };
 
@@ -32,11 +33,13 @@ const I18N = {
         today: "Bugun",
         tomorrow: "Ertaga",
         weekly: "7 kunlik",
-        subscribe: "🔔 Har kuni ertalab 07:00 da ob-havoni olish",
+        subscribe: "🔔 Har kuni 07:00 da ob-havo olish",
         unsubscribe: "🔕 Obunani bekor qilish",
         sub_success: "Siz har kuni 07:00 da ob-havo ma'lumotlarini qabul qilasiz! ✅",
         unsub_success: "Obuna bekor qilindi. ❌",
         error: "Xatolik yuz berdi. Iltimos keyinroq urinib ko'ring.",
+        prayer: "🕌 Namoz",
+        agro: "🌱 Agro-info",
         condition: {
             0: "Ochiq havo ☀️", 1: "Qisman bulutli ⛅", 2: "Bulutli ☁️", 3: "Bulutli ☁️",
             45: "Tuman 🌫️", 48: "Tuman 🌫️",
@@ -46,11 +49,7 @@ const I18N = {
             80: "Kuchli yomg'ir 🌧️", 81: "Kuchli yomg'ir 🌧️", 82: "Kuchli yomg'ir 🌧️",
             85: "Kuchli qor ❄️", 86: "Kuchli qor ❄️",
             95: "Momaqaldiroq ⛈️", 96: "Momaqaldiroq ⛈️", 99: "Momaqaldiroq ⛈️"
-        },
-        adv_rain: "Soyabon olishni unutmang! ☔",
-        adv_cold: "Havo sovuq, qalinroq kiyining! 🧥",
-        adv_hot: "Havo issiq, yengil kiyining va ko'p suv iching! 👕🚰",
-        adv_nice: "Havo ajoyib, sayr qilish uchun qulay vaqt! 🚶‍♂️🌳"
+        }
     },
     uz_cyr: {
         welcome: "Ассалому алайкум! 🌤️\n\nҚайси вилоят об-ҳавоси сизни қизиқтиради? Қуйидаги тугмалардан бирини танланг ёки жойлашувингизни юборинг:",
@@ -61,11 +60,13 @@ const I18N = {
         today: "Бугун",
         tomorrow: "Эртага",
         weekly: "7 кунлик",
-        subscribe: "🔔 Ҳар куни эрталаб 07:00 да об-ҳавони олиш",
+        subscribe: "🔔 Ҳар куни 07:00 да об-ҳаво олиш",
         unsubscribe: "🔕 Обунани бекор қилиш",
         sub_success: "Сиз ҳар куни 07:00 да об-ҳаво маълумотларини қабул қиласиз! ✅",
         unsub_success: "Обуна бекор қилинди. ❌",
         error: "Хатолик юз берди. Илтимос кейинроқ уриниб кўринг.",
+        prayer: "🕌 Намоз",
+        agro: "🌱 Агро-инфо",
         condition: {
             0: "Очиқ ҳаво ☀️", 1: "Қисман булутли ⛅", 2: "Булутли ☁️", 3: "Булутли ☁️",
             45: "Туман 🌫️", 48: "Туман 🌫️",
@@ -75,11 +76,7 @@ const I18N = {
             80: "Кучли ёмғир 🌧️", 81: "Кучли ёмғир 🌧️", 82: "Кучли ёмғир 🌧️",
             85: "Кучли қор ❄️", 86: "Кучли қор ❄️",
             95: "Момақалдироқ ⛈️", 96: "Момақалдироқ ⛈️", 99: "Момақалдироқ ⛈️"
-        },
-        adv_rain: "Соябон олишни унутманг! ☔",
-        adv_cold: "Ҳаво совуқ, қалинроқ кийининг! 🧥",
-        adv_hot: "Ҳаво иссиқ, енгил кийининг ва кўп сув ичинг! 👕🚰",
-        adv_nice: "Ҳаво ажойиб, сайр қилиш учун қулай вақт! 🚶‍♂️🌳"
+        }
     },
     ru: {
         welcome: "Здравствуйте! 🌤️\n\nПогода в каком регионе вас интересует? Выберите кнопку ниже или отправьте свою геопозицию:",
@@ -95,6 +92,8 @@ const I18N = {
         sub_success: "Вы будете получать прогноз каждый день в 07:00! ✅",
         unsub_success: "Подписка отменена. ❌",
         error: "Произошла ошибка. Пожалуйста, попробуйте позже.",
+        prayer: "🕌 Намаз",
+        agro: "🌱 Агро-инфо",
         condition: {
             0: "Ясно ☀️", 1: "Малооблачно ⛅", 2: "Облачно с прояснениями ⛅", 3: "Пасмурно ☁️",
             45: "Туман 🌫️", 48: "Туман 🌫️",
@@ -104,11 +103,7 @@ const I18N = {
             80: "Сильный дождь 🌧️", 81: "Сильный дождь 🌧️", 82: "Сильный дождь 🌧️",
             85: "Сильный снег ❄️", 86: "Сильный снег ❄️",
             95: "Гроза ⛈️", 96: "Гроза ⛈️", 99: "Гроза ⛈️"
-        },
-        adv_rain: "Не забудьте взять зонт! ☔",
-        adv_cold: "На улице холодно, одевайтесь теплее! 🧥",
-        adv_hot: "Жарко, одевайтесь легко и пейте больше воды! 👕🚰",
-        adv_nice: "Отличная погода для прогулки! 🚶‍♂️🌳"
+        }
     }
 };
 
@@ -128,10 +123,7 @@ const REGIONS = {
     "Qoraqalpog'iston": { lat: 42.4619, lon: 59.6166 }
 };
 
-const getT = (ctx) => {
-    const user = getUser(ctx);
-    return I18N[user.lang] || I18N['uz'];
-};
+const getT = (ctx) => I18N[getUser(ctx).lang] || I18N['uz'];
 
 const getMainMenu = (t) => {
     return Markup.keyboard([
@@ -152,39 +144,78 @@ const getRegionsKeyboard = () => {
 };
 
 const fetchWeatherData = async (lat, lon) => {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`;
-    const response = await axios.get(url);
-    return response.data;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,soil_temperature_0cm&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10,pm2_5&timezone=auto`;
+    
+    const [weatherReq, aqiReq] = await Promise.all([
+        axios.get(url).catch(() => null),
+        axios.get(aqiUrl).catch(() => null)
+    ]);
+    
+    return {
+        weather: weatherReq ? weatherReq.data : null,
+        aqi: aqiReq ? aqiReq.data : null
+    };
 };
 
-const generateAdvice = (temp, code, t) => {
-    if ([51,53,55,61,63,65,80,81,82,95,96,99].includes(code)) return t.adv_rain;
-    if (temp <= 10 || [71,73,75,77,85,86].includes(code)) return t.adv_cold;
-    if (temp >= 30) return t.adv_hot;
-    return t.adv_nice;
+const fetchPrayerTimes = async (lat, lon) => {
+    try {
+        const url = `http://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`;
+        const res = await axios.get(url);
+        return res.data.data.timings;
+    } catch(e) {
+        return null;
+    }
+};
+
+const checkExtremeWeather = (current) => {
+    let warnings = [];
+    if (current.wind_speed_10m > 40) warnings.push("⚠️ KUCHLI SHAMOL XAVFI!");
+    if (current.temperature_2m < -10) warnings.push("❄️ QATTIQ SOVUQ XAVFI!");
+    if (current.temperature_2m > 40) warnings.push("🔥 JAZIRAMA ISSIQ XAVFI!");
+    if ([80,81,82,95,96,99].includes(current.weather_code)) warnings.push("🌪 KUCHLI JALA / BO'RON!");
+    return warnings.length > 0 ? warnings.join("\n") + "\n\n" : "";
 };
 
 const formatCurrentWeather = (data, regionName, t) => {
-    const current = data.current;
-    const daily = data.daily;
-    const condition = t.condition[current.weather_code] || "Noma'lum";
-    const advice = generateAdvice(current.temperature_2m, current.weather_code, t);
+    const w = data.weather.current;
+    const condition = t.condition[w.weather_code] || "Noma'lum";
+    const warnings = checkExtremeWeather(w);
     
-    let text = `📍 <b>${regionName}</b> (${t.today}):\n\n`;
-    text += `🌡️ <b>Temp:</b> ${current.temperature_2m}°C <i>(His: ${current.apparent_temperature}°C)</i>\n`;
+    let text = warnings;
+    text += `📍 <b>${regionName}</b> (${t.today}):\n\n`;
+    text += `🌡️ <b>Temp:</b> ${w.temperature_2m}°C <i>(His: ${w.apparent_temperature}°C)</i>\n`;
     text += `☁️ <b>Holat:</b> ${condition}\n`;
-    text += `💧 <b>Namlik:</b> ${current.relative_humidity_2m}%\n`;
-    text += `💨 <b>Shamol:</b> ${current.wind_speed_10m} km/soat\n\n`;
-    text += `💡 <i>${advice}</i>\n`;
+    text += `💧 <b>Namlik:</b> ${w.relative_humidity_2m}%\n`;
+    text += `💨 <b>Shamol:</b> ${w.wind_speed_10m} km/soat\n`;
+    
+    if (data.aqi && data.aqi.current) {
+        const aqi = data.aqi.current.us_aqi;
+        let aqiStatus = aqi < 50 ? "Yaxshi 🟢" : aqi < 100 ? "O'rtacha 🟡" : "Zararli 🔴 (Niqob taqing!)";
+        text += `\n🌫 <b>Havo sifati (AQI):</b> ${aqi} - ${aqiStatus}\n`;
+        text += `😷 <b>Chang (PM2.5):</b> ${data.aqi.current.pm2_5} µg/m³\n`;
+    }
+    return text;
+};
+
+const formatAgro = (data, regionName, t) => {
+    const w = data.weather.current;
+    let text = `🌱 <b>${regionName}</b> (Agro-ma'lumot):\n\n`;
+    text += `🌡️ Havo harorati: ${w.temperature_2m}°C\n`;
+    text += `🌍 Tuproq harorati (ustki): ${w.soil_temperature_0cm}°C\n`;
+    text += `💧 Havo namligi: ${w.relative_humidity_2m}%\n`;
+    text += `☔ Yog'ingarchilik: ${w.precipitation} mm\n`;
+    if (w.soil_temperature_0cm < 5) text += `\n⚠️ Tuproq sovuq, urug' qadashga erta!`;
+    else if (w.soil_temperature_0cm > 15) text += `\n✅ Tuproq harorati ekin ekish uchun qulay!`;
     return text;
 };
 
 const formatForecast = (data, regionName, t, days) => {
-    const daily = data.daily;
+    const daily = data.weather.daily;
     let text = `📍 <b>${regionName}</b> (${days === 1 ? t.tomorrow : t.weekly}):\n\n`;
     
     const limit = days === 1 ? 2 : 7;
-    const startIdx = days === 1 ? 1 : 0; // if 1 day (tomorrow), skip today (idx 0)
+    const startIdx = days === 1 ? 1 : 0; 
     
     for (let i = startIdx; i < limit; i++) {
         const date = new Date(daily.time[i]).toLocaleDateString('ru-RU');
@@ -196,10 +227,10 @@ const formatForecast = (data, regionName, t, days) => {
 };
 
 const actionKeyboard = (lat, lon, regionName, t) => {
-    const data = JSON.stringify({ lat, lon, reg: regionName }).substring(0, 40); // callback payload limit
     return Markup.inlineKeyboard([
         [Markup.button.callback(t.today, `today_${regionName}`), Markup.button.callback(t.tomorrow, `tomor_${regionName}`)],
-        [Markup.button.callback(t.weekly, `week_${regionName}`)],
+        [Markup.button.callback(t.weekly, `week_${regionName}`), Markup.button.callback(t.agro, `agro_${regionName}`)],
+        [Markup.button.callback(t.prayer, `pray_${regionName}`)],
         [Markup.button.callback(t.subscribe, `sub_${regionName}`)]
     ]);
 };
@@ -217,6 +248,41 @@ bot.hears(['⚙️ Sozlamalar', '⚙️ Созламалар', '⚙️ Наст�
         [Markup.button.callback("Ўзбекча (Кирилл)", "lang_uz_cyr")],
         [Markup.button.callback("Русский", "lang_ru")]
     ]));
+});
+
+// Admin Panel commands
+bot.command('admin', (ctx) => {
+    const text = ctx.message.text.split(' ');
+    if (text[1] === ADMIN_PASSWORD) {
+        const user = getUser(ctx);
+        user.isAdmin = true;
+        saveDb();
+        ctx.reply("Tabriklayman! Siz admin bo'ldingiz.\nBuyruqlar:\n/stats - Statistika\n/broadcast <xabar> - Barchaga xabar yuborish");
+    }
+});
+
+bot.command('stats', (ctx) => {
+    const user = getUser(ctx);
+    if (!user.isAdmin) return;
+    const count = Object.keys(db).length;
+    let subs = Object.values(db).filter(u => u.subscribed).length;
+    ctx.reply(`📊 Jami foydalanuvchilar: ${count}\n🔔 Obunachilar: ${subs}`);
+});
+
+bot.command('broadcast', async (ctx) => {
+    const user = getUser(ctx);
+    if (!user.isAdmin) return;
+    const msg = ctx.message.text.substring(10).trim();
+    if (!msg) return ctx.reply("Xabarni kiriting: /broadcast Salom hammaga!");
+    
+    let sent = 0;
+    for (const chatId of Object.keys(db)) {
+        try {
+            await bot.telegram.sendMessage(chatId, `📢 <b>Admin xabari:</b>\n\n${msg}`, { parse_mode: 'HTML' });
+            sent++;
+        } catch(e) {}
+    }
+    ctx.reply(`✅ Xabar ${sent} ta foydalanuvchiga yuborildi.`);
 });
 
 bot.action(/^lang_(.+)$/, (ctx) => {
@@ -258,21 +324,27 @@ bot.action(/^reg_(.+)$/, async (ctx) => {
     }
 });
 
-bot.action(/^(today|tomor|week)_(.+)$/, async (ctx) => {
+bot.action(/^(today|tomor|week|agro|pray)_(.+)$/, async (ctx) => {
     const action = ctx.match[1];
     const regionName = ctx.match[2];
     const t = getT(ctx);
     
-    // For custom location without region name we skip this since it needs region coordinates
     if (!REGIONS[regionName]) return ctx.answerCbQuery();
     const { lat, lon } = REGIONS[regionName];
     
     try {
-        const data = await fetchWeatherData(lat, lon);
         let text = "";
-        if (action === 'today') text = formatCurrentWeather(data, regionName, t);
-        else if (action === 'tomor') text = formatForecast(data, regionName, t, 1);
-        else if (action === 'week') text = formatForecast(data, regionName, t, 7);
+        if (action === 'pray') {
+            const pt = await fetchPrayerTimes(lat, lon);
+            if (!pt) throw new Error("API error");
+            text = `🕌 <b>${regionName}</b> uchun bugungi namoz vaqtlari:\n\n🌅 Tong: ${pt.Fajr}\n🌄 Quyosh: ${pt.Sunrise}\n☀️ Peshin: ${pt.Dhuhr}\n🌤 Asr: ${pt.Asr}\n🌇 Shom: ${pt.Maghrib}\n🌙 Xufton: ${pt.Isha}`;
+        } else {
+            const data = await fetchWeatherData(lat, lon);
+            if (action === 'today') text = formatCurrentWeather(data, regionName, t);
+            else if (action === 'tomor') text = formatForecast(data, regionName, t, 1);
+            else if (action === 'week') text = formatForecast(data, regionName, t, 7);
+            else if (action === 'agro') text = formatAgro(data, regionName, t);
+        }
         
         ctx.answerCbQuery();
         ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
@@ -298,7 +370,7 @@ bot.action(/^sub_(.+)$/, (ctx) => {
     }
 });
 
-// CRON JOB: Every day at 07:00
+// CRON JOB
 cron.schedule('0 7 * * *', async () => {
     console.log("Running daily notifications...");
     for (const [chatId, user] of Object.entries(db)) {
@@ -309,9 +381,7 @@ cron.schedule('0 7 * * *', async () => {
                 const data = await fetchWeatherData(lat, lon);
                 const text = `⏰ <b>Xayrli tong!</b>\n\n` + formatCurrentWeather(data, user.region, t);
                 bot.telegram.sendMessage(chatId, text, { parse_mode: 'HTML' });
-            } catch (e) {
-                console.error(`Failed to send daily to ${chatId}`);
-            }
+            } catch (e) {}
         }
     }
 });
@@ -322,16 +392,14 @@ const app = express();
 app.get('/', (req, res) => res.send('Bot ishladi va Webhook orqali ulandi! 🚀'));
 
 const PORT = process.env.PORT || 3000;
-const RENDER_URL = process.env.RENDER_EXTERNAL_URL; // Render avtomat beradi
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
 
 if (RENDER_URL) {
-    // Renderda ishlayotgan bo'lsa Webhook ishlatamiz
     const webhookPath = `/bot${token}`;
     bot.telegram.setWebhook(`${RENDER_URL}${webhookPath}`);
     app.use(bot.webhookCallback(webhookPath));
     console.log(`Webhook o'rnatildi: ${RENDER_URL}`);
 } else {
-    // Kompyuterda ishlasa Polling
     bot.launch().then(() => console.log('Bot Polling orqali ishga tushdi...'));
 }
 
