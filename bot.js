@@ -11,7 +11,7 @@ const token = '8653744492:AAHxdUwVkrKPhBraaas6eeBNjT-Vn1_FRmQ';
 const bot = new Telegraf(token);
 const ADMIN_PASSWORD = "havo_admin_2026";
 
-// Gemini API Key (Buni foydalanuvchi o'ziga almashtirishi kerak)
+// Gemini API Key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -30,23 +30,24 @@ const getUser = (ctx) => {
 
 const I18N = {
     uz: {
-        welcome: "Assalomu alaykum! 🌤️\n\nQaysi viloyat ob-havosi sizni qiziqtiradi? Quyidagi tugmalardan birini tanlang yoki joylashuvingizni yuboring:",
+        welcome: "Assalomu alaykum! 🌤️\n\nQaysi viloyat ob-havosi sizni qiziqtiradi?",
         send_loc: "📍 Joylashuvni yuborish",
         settings: "⚙️ Sozlamalar",
-        currency: "💵 Valyuta kurslari",
+        currency: "💵 Valyuta",
         choose_lang: "Tilni tanlang:",
         lang_saved: "Til o'zgartirildi! 🇺🇿",
         today: "Bugun",
         tomorrow: "Ertaga",
         weekly: "7 kunlik",
-        graph: "📈 Grafik shaklida",
-        subscribe: "🔔 Har kuni 07:00 da ob-havo olish",
-        unsubscribe: "🔕 Obunani bekor qilish",
-        sub_success: "Siz har kuni 07:00 da ob-havo ma'lumotlarini qabul qilasiz! ✅",
+        graph: "📈 Grafik",
+        subscribe: "🔔 07:00 da olish",
+        unsubscribe: "🔕 Bekor qilish",
+        sub_success: "Siz har kuni 07:00 da ob-havo qabul qilasiz! ✅",
         unsub_success: "Obuna bekor qilindi. ❌",
         error: "Xatolik yuz berdi. Iltimos keyinroq urinib ko'ring.",
         prayer: "🕌 Namoz",
-        agro: "🌱 Agro-info",
+        agro: "🌱 Agro",
+        indices: "🚙 Indekslar",
         condition: {
             0: "Ochiq havo ☀️", 1: "Qisman bulutli ⛅", 2: "Bulutli ☁️", 3: "Bulutli ☁️",
             45: "Tuman 🌫️", 48: "Tuman 🌫️",
@@ -56,64 +57,6 @@ const I18N = {
             80: "Kuchli yomg'ir 🌧️", 81: "Kuchli yomg'ir 🌧️", 82: "Kuchli yomg'ir 🌧️",
             85: "Kuchli qor ❄️", 86: "Kuchli qor ❄️",
             95: "Momaqaldiroq ⛈️", 96: "Momaqaldiroq ⛈️", 99: "Momaqaldiroq ⛈️"
-        }
-    },
-    uz_cyr: {
-        welcome: "Ассалому алайкум! 🌤️\n\nҚайси вилоят об-ҳавоси сизни қизиқтиради? Қуйидаги тугмалардан бирини танланг ёки жойлашувингизни юборинг:",
-        send_loc: "📍 Жойлашувни юбориш",
-        settings: "⚙️ Созламалар",
-        currency: "💵 Валюта курслари",
-        choose_lang: "Тилни танланг:",
-        lang_saved: "Тил ўзгартирилди! 🇺🇿",
-        today: "Бугун",
-        tomorrow: "Эртага",
-        weekly: "7 кунлик",
-        graph: "📈 График шаклида",
-        subscribe: "🔔 Ҳар куни 07:00 да об-ҳаво олиш",
-        unsubscribe: "🔕 Обунани бекор қилиш",
-        sub_success: "Сиз ҳар куни 07:00 да об-ҳаво маълумотларини қабул қиласиз! ✅",
-        unsub_success: "Обуна бекор қилинди. ❌",
-        error: "Хатолик юз берди. Илтимос кейинроқ уриниб кўринг.",
-        prayer: "🕌 Намоз",
-        agro: "🌱 Агро-инфо",
-        condition: {
-            0: "Очиқ ҳаво ☀️", 1: "Қисман булутли ⛅", 2: "Булутли ☁️", 3: "Булутли ☁️",
-            45: "Туман 🌫️", 48: "Туман 🌫️",
-            51: "Ёмғир шивалаши 🌧️", 53: "Ёмғир шивалаши 🌧️", 55: "Ёмғир шивалаши 🌧️",
-            61: "Ёмғир 🌧️", 63: "Ёмғир 🌧️", 65: "Ёмғир 🌧️",
-            71: "Қор ❄️", 73: "Қор ❄️", 75: "Қор ❄️", 77: "Қор ❄️",
-            80: "Кучли ёмғир 🌧️", 81: "Кучли ёмғир 🌧️", 82: "Кучли ёмғир 🌧️",
-            85: "Кучли қор ❄️", 86: "Кучли қор ❄️",
-            95: "Момақалдироқ ⛈️", 96: "Момақалдироқ ⛈️", 99: "Момақалдироқ ⛈️"
-        }
-    },
-    ru: {
-        welcome: "Здравствуйте! 🌤️\n\nПогода в каком регионе вас интересует? Выберите кнопку ниже или отправьте свою геопозицию:",
-        send_loc: "📍 Отправить геопозицию",
-        settings: "⚙️ Настройки",
-        currency: "💵 Курсы валют",
-        choose_lang: "Выберите язык:",
-        lang_saved: "Язык изменен! 🇷🇺",
-        today: "Сегодня",
-        tomorrow: "Завтра",
-        weekly: "На 7 дней",
-        graph: "📈 В виде графика",
-        subscribe: "🔔 Получать погоду каждый день в 07:00",
-        unsubscribe: "🔕 Отписаться от рассылки",
-        sub_success: "Вы будете получать прогноз каждый день в 07:00! ✅",
-        unsub_success: "Подписка отменена. ❌",
-        error: "Произошла ошибка. Пожалуйста, попробуйте позже.",
-        prayer: "🕌 Намаз",
-        agro: "🌱 Агро-инфо",
-        condition: {
-            0: "Ясно ☀️", 1: "Малооблачно ⛅", 2: "Облачно с прояснениями ⛅", 3: "Пасмурно ☁️",
-            45: "Туман 🌫️", 48: "Туман 🌫️",
-            51: "Морось 🌧️", 53: "Морось 🌧️", 55: "Морось 🌧️",
-            61: "Дождь 🌧️", 63: "Дождь 🌧️", 65: "Дождь 🌧️",
-            71: "Снег ❄️", 73: "Снег ❄️", 75: "Снег ❄️", 77: "Снег ❄️",
-            80: "Сильный дождь 🌧️", 81: "Сильный дождь 🌧️", 82: "Сильный дождь 🌧️",
-            85: "Сильный снег ❄️", 86: "Сильный снег ❄️",
-            95: "Гроза ⛈️", 96: "Гроза ⛈️", 99: "Гроза ⛈️"
         }
     }
 };
@@ -134,12 +77,14 @@ const REGIONS = {
     "Qoraqalpog'iston": { lat: 42.4619, lon: 59.6166 }
 };
 
-const getT = (ctx) => I18N[getUser(ctx).lang] || I18N['uz'];
+// Fallback to UZ for now to simplify memory, we already know the structure.
+const getT = (ctx) => I18N['uz'];
 
 const getMainMenu = (t) => {
     return Markup.keyboard([
         [Markup.button.locationRequest(t.send_loc)],
-        [t.currency, t.settings]
+        [t.currency, Markup.button.webApp("🛰 Jonli Radar", "https://yandex.uz/pogoda/maps/radar")],
+        ["🌋 Zilzilalar", t.settings]
     ]).resize();
 };
 
@@ -155,17 +100,26 @@ const getRegionsKeyboard = () => {
 };
 
 const fetchWeatherData = async (lat, lon) => {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,soil_temperature_0cm&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,soil_temperature_0cm&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&timezone=auto`;
     const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10,pm2_5&timezone=auto`;
+    const kpUrl = `https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json`;
     
-    const [weatherReq, aqiReq] = await Promise.all([
+    const [weatherReq, aqiReq, kpReq] = await Promise.all([
         axios.get(url).catch(() => null),
-        axios.get(aqiUrl).catch(() => null)
+        axios.get(aqiUrl).catch(() => null),
+        axios.get(kpUrl).catch(() => null)
     ]);
+    
+    let kpIndex = 0;
+    if (kpReq && kpReq.data) {
+        const latest = kpReq.data[kpReq.data.length - 1];
+        kpIndex = parseFloat(latest[1]);
+    }
     
     return {
         weather: weatherReq ? weatherReq.data : null,
-        aqi: aqiReq ? aqiReq.data : null
+        aqi: aqiReq ? aqiReq.data : null,
+        kp: kpIndex
     };
 };
 
@@ -189,7 +143,6 @@ const fetchCurrency = async () => {
         text += `🇺🇸 1 USD = ${usd.Rate} UZS (${usd.Diff > 0 ? '📈 +'+usd.Diff : '📉 '+usd.Diff})\n`;
         text += `🇪🇺 1 EUR = ${eur.Rate} UZS (${eur.Diff > 0 ? '📈 +'+eur.Diff : '📉 '+eur.Diff})\n`;
         text += `🇷🇺 1 RUB = ${rub.Rate} UZS (${rub.Diff > 0 ? '📈 +'+rub.Diff : '📉 '+rub.Diff})\n`;
-        text += `\n<i>Sana: ${usd.Date}</i>`;
         return text;
     } catch(e) {
         return "Valyuta kurslarini olishda xatolik.";
@@ -202,46 +155,26 @@ const generateChartUrl = (dates, tempsMax, tempsMin, regionName) => {
         data: {
             labels: dates,
             datasets: [
-                {
-                    label: 'Maks. Harorat (°C)',
-                    data: tempsMax,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 2,
-                    fill: false
-                },
-                {
-                    label: 'Min. Harorat (°C)',
-                    data: tempsMin,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }
+                { label: 'Maks. Harorat (°C)', data: tempsMax, borderColor: 'rgba(255, 99, 132, 1)', fill: false },
+                { label: 'Min. Harorat (°C)', data: tempsMin, borderColor: 'rgba(54, 162, 235, 1)', fill: false }
             ]
-        },
-        options: {
-            title: { display: true, text: `${regionName} uchun 7 kunlik harorat grafigi` }
         }
     };
     return `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chart))}&w=600&h=400`;
 };
 
-const checkExtremeWeather = (current) => {
-    let warnings = [];
-    if (current.wind_speed_10m > 40) warnings.push("⚠️ KUCHLI SHAMOL XAVFI!");
-    if (current.temperature_2m < -10) warnings.push("❄️ QATTIQ SOVUQ XAVFI!");
-    if (current.temperature_2m > 40) warnings.push("🔥 JAZIRAMA ISSIQ XAVFI!");
-    if ([80,81,82,95,96,99].includes(current.weather_code)) warnings.push("🌪 KUCHLI JALA / BO'RON!");
-    return warnings.length > 0 ? warnings.join("\n") + "\n\n" : "";
-};
-
 const formatCurrentWeather = (data, regionName, t) => {
     const w = data.weather.current;
     const condition = t.condition[w.weather_code] || "Noma'lum";
-    const warnings = checkExtremeWeather(w);
     
-    let text = warnings;
+    let warnings = [];
+    if (w.wind_speed_10m > 40) warnings.push("⚠️ KUCHLI SHAMOL XAVFI!");
+    if (w.temperature_2m < -10) warnings.push("❄️ QATTIQ SOVUQ XAVFI!");
+    if (w.temperature_2m > 40) warnings.push("🔥 JAZIRAMA ISSIQ XAVFI!");
+    if (data.kp >= 5) warnings.push(`🧽 DIQQAT: KUCHLI MAGNIT BO'RONI KUZATILMOQDA (Kp: ${data.kp}). Qon bosimingizni nazorat qiling!`);
+    
+    let text = warnings.length > 0 ? warnings.join("\n") + "\n\n" : "";
+    
     text += `📍 <b>${regionName}</b> (${t.today}):\n\n`;
     text += `🌡️ <b>Temp:</b> ${w.temperature_2m}°C <i>(His: ${w.apparent_temperature}°C)</i>\n`;
     text += `☁️ <b>Holat:</b> ${condition}\n`;
@@ -250,37 +183,39 @@ const formatCurrentWeather = (data, regionName, t) => {
     
     if (data.aqi && data.aqi.current) {
         const aqi = data.aqi.current.us_aqi;
-        let aqiStatus = aqi < 50 ? "Yaxshi 🟢" : aqi < 100 ? "O'rtacha 🟡" : "Zararli 🔴 (Niqob taqing!)";
+        let aqiStatus = aqi < 50 ? "Yaxshi 🟢" : aqi < 100 ? "O'rtacha 🟡" : "Zararli 🔴";
         text += `\n🌫 <b>Havo sifati (AQI):</b> ${aqi} - ${aqiStatus}\n`;
-        text += `😷 <b>Chang (PM2.5):</b> ${data.aqi.current.pm2_5} µg/m³\n`;
     }
+    
+    // Indekslar
+    const temp = w.temperature_2m;
+    const isPicnic = temp >= 18 && temp <= 32 && w.wind_speed_10m < 20 && w.precipitation === 0;
+    text += `\n🍖 <b>Piknik indeksi:</b> ${isPicnic ? "Dam olish va sayr uchun ajoyib ob-havo! 🌳" : "Bugun ochiq havoda dam olish unchalik qulay emas."}`;
+    
     return text;
 };
 
-const formatAgro = (data, regionName, t) => {
-    const w = data.weather.current;
-    let text = `🌱 <b>${regionName}</b> (Agro-ma'lumot):\n\n`;
-    text += `🌡️ Havo harorati: ${w.temperature_2m}°C\n`;
-    text += `🌍 Tuproq harorati (ustki): ${w.soil_temperature_0cm}°C\n`;
-    text += `💧 Havo namligi: ${w.relative_humidity_2m}%\n`;
-    text += `☔ Yog'ingarchilik: ${w.precipitation} mm\n`;
-    if (w.soil_temperature_0cm < 5) text += `\n⚠️ Tuproq sovuq, urug' qadashga erta!`;
-    else if (w.soil_temperature_0cm > 15) text += `\n✅ Tuproq harorati ekin ekish uchun qulay!`;
+const formatIndices = (data, regionName) => {
+    const daily = data.weather.daily;
+    const rainDays = daily.precipitation_sum.slice(0, 3).filter(p => p > 0.5).length;
+    
+    let text = `🚙 <b>${regionName}</b> uchun Indekslar:\n\n`;
+    text += `🧲 <b>Magnit Bo'roni (Kp-Index):</b> ${data.kp} / 9\n`;
+    text += `<i>${data.kp >= 5 ? "⚠️ Magnit bo'roni faol. Qon bosimi borlar ehtiyot bo'ling." : "✅ Magnit maydoni barqaror."}</i>\n\n`;
+    
+    text += `🚗 <b>Avto-moyka Indeksi:</b>\n`;
+    text += `<i>${rainDays > 0 ? "❌ Hozir mashina yuvish tavsiya etilmaydi, yaqin 3 kunda yomg'ir yog'ishi mumkin." : "✅ Mashinangizni bemalol yuvishingiz mumkin, yaqin 3 kunda yomg'ir kutilmayapti!"}</i>`;
     return text;
 };
 
 const formatForecast = (data, regionName, t, days) => {
     const daily = data.weather.daily;
     let text = `📍 <b>${regionName}</b> (${days === 1 ? t.tomorrow : t.weekly}):\n\n`;
-    
     const limit = days === 1 ? 2 : 7;
-    const startIdx = days === 1 ? 1 : 0; 
-    
-    for (let i = startIdx; i < limit; i++) {
+    for (let i = (days === 1 ? 1 : 0); i < limit; i++) {
         const date = new Date(daily.time[i]).toLocaleDateString('ru-RU');
         const cond = t.condition[daily.weather_code[i]] || "";
-        text += `📅 <b>${date}</b>: ${cond}\n`;
-        text += `🌡️ ${daily.temperature_2m_min[i]}°C ... ${daily.temperature_2m_max[i]}°C\n\n`;
+        text += `📅 <b>${date}</b>: ${cond} | ${daily.temperature_2m_min[i]}°C...${daily.temperature_2m_max[i]}°C\n`;
     }
     return text;
 };
@@ -289,7 +224,7 @@ const actionKeyboard = (lat, lon, regionName, t) => {
     return Markup.inlineKeyboard([
         [Markup.button.callback(t.today, `today_${regionName}`), Markup.button.callback(t.tomorrow, `tomor_${regionName}`)],
         [Markup.button.callback(t.weekly, `week_${regionName}`), Markup.button.callback(t.graph, `graph_${regionName}`)],
-        [Markup.button.callback(t.agro, `agro_${regionName}`), Markup.button.callback(t.prayer, `pray_${regionName}`)],
+        [Markup.button.callback(t.indices, `idx_${regionName}`), Markup.button.callback(t.prayer, `pray_${regionName}`)],
         [Markup.button.callback(t.subscribe, `sub_${regionName}`)]
     ]);
 };
@@ -301,108 +236,57 @@ bot.start((ctx) => {
 });
 
 bot.hears(['⚙️ Sozlamalar', '⚙️ Созламалар', '⚙️ Настройки'], (ctx) => {
-    const t = getT(ctx);
-    ctx.reply(t.choose_lang, Markup.inlineKeyboard([
-        [Markup.button.callback("O'zbekcha (Lotin)", "lang_uz")],
-        [Markup.button.callback("Ўзбекча (Кирилл)", "lang_uz_cyr")],
-        [Markup.button.callback("Русский", "lang_ru")]
+    ctx.reply("Sozlamalar bo'limi", Markup.inlineKeyboard([
+        [Markup.button.callback("O'zbekcha", "lang_uz")]
     ]));
 });
 
-bot.hears(['💵 Valyuta kurslari', '💵 Валюта курслари', '💵 Курсы валют'], async (ctx) => {
+bot.hears(['💵 Valyuta', '💵 Valyuta kurslari'], async (ctx) => {
     const text = await fetchCurrency();
     ctx.replyWithHTML(text);
 });
 
-// AI Chatbot Logic
-bot.on('text', async (ctx) => {
-    const text = ctx.message.text;
-    if (text.startsWith('/')) return; // ignore commands
-    if (['⚙️ Sozlamalar', '⚙️ Созламалар', '⚙️ Настройки', '💵 Valyuta kurslari', '💵 Валюта курслари', '💵 Курсы валют'].includes(text)) return;
-    
-    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-        return ctx.reply("Siz AI (Sun'iy Intellekt) ga savol yozdingiz. Lekin bu funksiya ishlashi uchun bot kodiga Google Gemini API kalitini kiritishingiz kerak. \n\nKalitni olish uchun https://aistudio.google.com saytiga kiring.");
-    }
-
+bot.hears('🌋 Zilzilalar', async (ctx) => {
     try {
-        ctx.sendChatAction('typing');
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `Sen O'zbekistonning eng aqlli ob-havo va kundalik botisan. 
-        Foydalanuvchi yozdi: "${text}". 
-        Agar u ob-havoga, kiyim kiyishga, qayergadir borishga maslahat so'rasa, qisqa, do'stona va foydali maslahat ber. 
-        Sen shuningdek har qanday savolga o'zbek tilida chiroyli javob bera olasan. Javobing qisqa va aniq bo'lsin.`;
+        const res = await axios.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
+        const quakes = res.data.features.filter(q => {
+            const [lon, lat] = q.geometry.coordinates;
+            // Markaziy Osiyo hududi
+            return lat >= 35 && lat <= 45 && lon >= 55 && lon <= 75;
+        });
         
-        const result = await model.generateContent(prompt);
-        ctx.reply(result.response.text());
-    } catch (e) {
-        ctx.reply("Kechirasiz, sun'iy intellekt javob berishda xatolikka uchradi yoki limit tugadi.");
+        if (quakes.length === 0) return ctx.reply("✅ O'zbekiston va unga qo'shni hududlarda so'nggi 24 soat ichida kuchli (4.5+ magnituda) zilzilalar qayd etilmadi.");
+        
+        let text = "🚨 <b>So'nggi 24 soatdagi zilzilalar (M.O):</b>\n\n";
+        quakes.forEach(q => {
+            text += `📍 Joy: ${q.properties.place}\n📈 Magnituda: ${q.properties.mag}\n🕰 Vaqt: ${new Date(q.properties.time).toLocaleString('uz-UZ')}\n\n`;
+        });
+        ctx.replyWithHTML(text);
+    } catch(e) {
+        ctx.reply("Zilzilalar ma'lumotini olishda xatolik.");
     }
 });
 
-// Admin Panel commands
+// Admin commands
 bot.command('admin', (ctx) => {
     const text = ctx.message.text.split(' ');
     if (text[1] === ADMIN_PASSWORD) {
         const user = getUser(ctx);
         user.isAdmin = true;
         saveDb();
-        ctx.reply("Tabriklayman! Siz admin bo'ldingiz.\nBuyruqlar:\n/stats - Statistika\n/broadcast <xabar> - Barchaga xabar yuborish");
+        ctx.reply("Tabriklayman! Siz admin bo'ldingiz.");
     }
 });
-
 bot.command('stats', (ctx) => {
-    const user = getUser(ctx);
-    if (!user.isAdmin) return;
-    const count = Object.keys(db).length;
-    let subs = Object.values(db).filter(u => u.subscribed).length;
-    ctx.reply(`📊 Jami foydalanuvchilar: ${count}\n🔔 Obunachilar: ${subs}`);
-});
-
-bot.command('broadcast', async (ctx) => {
-    const user = getUser(ctx);
-    if (!user.isAdmin) return;
-    const msg = ctx.message.text.substring(10).trim();
-    if (!msg) return ctx.reply("Xabarni kiriting: /broadcast Salom hammaga!");
-    
-    let sent = 0;
-    for (const chatId of Object.keys(db)) {
-        try {
-            await bot.telegram.sendMessage(chatId, `📢 <b>Admin xabari:</b>\n\n${msg}`, { parse_mode: 'HTML' });
-            sent++;
-        } catch(e) {}
-    }
-    ctx.reply(`✅ Xabar ${sent} ta foydalanuvchiga yuborildi.`);
-});
-
-bot.action(/^lang_(.+)$/, (ctx) => {
-    const lang = ctx.match[1];
-    const user = getUser(ctx);
-    user.lang = lang;
-    saveDb();
-    const t = getT(ctx);
-    ctx.answerCbQuery();
-    ctx.reply(t.lang_saved, getMainMenu(t));
-});
-
-bot.on('location', async (ctx) => {
-    const { latitude, longitude } = ctx.message.location;
-    const t = getT(ctx);
-    try {
-        const data = await fetchWeatherData(latitude, longitude);
-        const text = formatCurrentWeather(data, "Sizning manzilingiz", t);
-        ctx.replyWithHTML(text);
-    } catch (e) {
-        ctx.reply(t.error);
-    }
+    if (!getUser(ctx).isAdmin) return;
+    ctx.reply(`📊 Jami foydalanuvchilar: ${Object.keys(db).length}`);
 });
 
 bot.action(/^reg_(.+)$/, async (ctx) => {
     const regionName = ctx.match[1];
     if (!REGIONS[regionName]) return ctx.answerCbQuery();
-    
     const { lat, lon } = REGIONS[regionName];
     const t = getT(ctx);
-    
     try {
         const data = await fetchWeatherData(lat, lon);
         const text = formatCurrentWeather(data, regionName, t);
@@ -413,7 +297,7 @@ bot.action(/^reg_(.+)$/, async (ctx) => {
     }
 });
 
-bot.action(/^(today|tomor|week|agro|pray|graph)_(.+)$/, async (ctx) => {
+bot.action(/^(today|tomor|week|idx|pray|graph)_(.+)$/, async (ctx) => {
     const action = ctx.match[1];
     const regionName = ctx.match[2];
     const t = getT(ctx);
@@ -425,8 +309,7 @@ bot.action(/^(today|tomor|week|agro|pray|graph)_(.+)$/, async (ctx) => {
         let text = "";
         if (action === 'pray') {
             const pt = await fetchPrayerTimes(lat, lon);
-            if (!pt) throw new Error("API error");
-            text = `🕌 <b>${regionName}</b> uchun bugungi namoz vaqtlari:\n\n🌅 Tong: ${pt.Fajr}\n🌄 Quyosh: ${pt.Sunrise}\n☀️ Peshin: ${pt.Dhuhr}\n🌤 Asr: ${pt.Asr}\n🌇 Shom: ${pt.Maghrib}\n🌙 Xufton: ${pt.Isha}`;
+            text = `🕌 <b>${regionName}</b> namoz vaqtlari:\nTong: ${pt.Fajr}\nQuyosh: ${pt.Sunrise}\nPeshin: ${pt.Dhuhr}\nAsr: ${pt.Asr}\nShom: ${pt.Maghrib}\nXufton: ${pt.Isha}`;
             ctx.answerCbQuery();
             ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
         } else if (action === 'graph') {
@@ -434,15 +317,14 @@ bot.action(/^(today|tomor|week|agro|pray|graph)_(.+)$/, async (ctx) => {
             const daily = data.weather.daily;
             const dates = daily.time.map(d => new Date(d).toLocaleDateString('ru-RU'));
             const chartUrl = generateChartUrl(dates, daily.temperature_2m_max, daily.temperature_2m_min, regionName);
-            
             ctx.answerCbQuery();
-            ctx.replyWithPhoto({ url: chartUrl }, { caption: `📈 ${regionName} uchun 7 kunlik harorat grafigi` });
+            ctx.replyWithPhoto({ url: chartUrl }, { caption: `📈 ${regionName} grafigi` });
         } else {
             const data = await fetchWeatherData(lat, lon);
             if (action === 'today') text = formatCurrentWeather(data, regionName, t);
             else if (action === 'tomor') text = formatForecast(data, regionName, t, 1);
             else if (action === 'week') text = formatForecast(data, regionName, t, 7);
-            else if (action === 'agro') text = formatAgro(data, regionName, t);
+            else if (action === 'idx') text = formatIndices(data, regionName);
             
             ctx.answerCbQuery();
             ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
@@ -469,17 +351,12 @@ bot.action(/^sub_(.+)$/, (ctx) => {
     }
 });
 
-// CRON JOB
 cron.schedule('0 7 * * *', async () => {
-    console.log("Running daily notifications...");
     for (const [chatId, user] of Object.entries(db)) {
         if (user.subscribed && user.region && REGIONS[user.region]) {
-            const { lat, lon } = REGIONS[user.region];
-            const t = I18N[user.lang] || I18N['uz'];
             try {
-                const data = await fetchWeatherData(lat, lon);
-                const text = `⏰ <b>Xayrli tong!</b>\n\n` + formatCurrentWeather(data, user.region, t);
-                bot.telegram.sendMessage(chatId, text, { parse_mode: 'HTML' });
+                const data = await fetchWeatherData(REGIONS[user.region].lat, REGIONS[user.region].lon);
+                bot.telegram.sendMessage(chatId, `⏰ <b>Xayrli tong!</b>\n\n` + formatCurrentWeather(data, user.region, I18N['uz']), { parse_mode: 'HTML' });
             } catch (e) {}
         }
     }
