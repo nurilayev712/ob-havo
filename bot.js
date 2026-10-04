@@ -3,12 +3,17 @@ const axios = require('axios');
 const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const token = '8653744492:AAHxdUwVkrKPhBraaas6eeBNjT-Vn1_FRmQ';
 const bot = new Telegraf(token);
 const ADMIN_PASSWORD = "havo_admin_2026";
+
+// Gemini API Key (Buni foydalanuvchi o'ziga almashtirishi kerak)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_API_KEY_HERE";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const DB_FILE = path.join(__dirname, 'database.json');
 let db = {};
@@ -28,11 +33,13 @@ const I18N = {
         welcome: "Assalomu alaykum! 🌤️\n\nQaysi viloyat ob-havosi sizni qiziqtiradi? Quyidagi tugmalardan birini tanlang yoki joylashuvingizni yuboring:",
         send_loc: "📍 Joylashuvni yuborish",
         settings: "⚙️ Sozlamalar",
+        currency: "💵 Valyuta kurslari",
         choose_lang: "Tilni tanlang:",
         lang_saved: "Til o'zgartirildi! 🇺🇿",
         today: "Bugun",
         tomorrow: "Ertaga",
         weekly: "7 kunlik",
+        graph: "📈 Grafik shaklida",
         subscribe: "🔔 Har kuni 07:00 da ob-havo olish",
         unsubscribe: "🔕 Obunani bekor qilish",
         sub_success: "Siz har kuni 07:00 da ob-havo ma'lumotlarini qabul qilasiz! ✅",
@@ -55,11 +62,13 @@ const I18N = {
         welcome: "Ассалому алайкум! 🌤️\n\nҚайси вилоят об-ҳавоси сизни қизиқтиради? Қуйидаги тугмалардан бирини танланг ёки жойлашувингизни юборинг:",
         send_loc: "📍 Жойлашувни юбориш",
         settings: "⚙️ Созламалар",
+        currency: "💵 Валюта курслари",
         choose_lang: "Тилни танланг:",
         lang_saved: "Тил ўзгартирилди! 🇺🇿",
         today: "Бугун",
         tomorrow: "Эртага",
         weekly: "7 кунлик",
+        graph: "📈 График шаклида",
         subscribe: "🔔 Ҳар куни 07:00 да об-ҳаво олиш",
         unsubscribe: "🔕 Обунани бекор қилиш",
         sub_success: "Сиз ҳар куни 07:00 да об-ҳаво маълумотларини қабул қиласиз! ✅",
@@ -82,11 +91,13 @@ const I18N = {
         welcome: "Здравствуйте! 🌤️\n\nПогода в каком регионе вас интересует? Выберите кнопку ниже или отправьте свою геопозицию:",
         send_loc: "📍 Отправить геопозицию",
         settings: "⚙️ Настройки",
+        currency: "💵 Курсы валют",
         choose_lang: "Выберите язык:",
         lang_saved: "Язык изменен! 🇷🇺",
         today: "Сегодня",
         tomorrow: "Завтра",
         weekly: "На 7 дней",
+        graph: "📈 В виде графика",
         subscribe: "🔔 Получать погоду каждый день в 07:00",
         unsubscribe: "🔕 Отписаться от рассылки",
         sub_success: "Вы будете получать прогноз каждый день в 07:00! ✅",
@@ -128,7 +139,7 @@ const getT = (ctx) => I18N[getUser(ctx).lang] || I18N['uz'];
 const getMainMenu = (t) => {
     return Markup.keyboard([
         [Markup.button.locationRequest(t.send_loc)],
-        [t.settings]
+        [t.currency, t.settings]
     ]).resize();
 };
 
@@ -166,6 +177,54 @@ const fetchPrayerTimes = async (lat, lon) => {
     } catch(e) {
         return null;
     }
+};
+
+const fetchCurrency = async () => {
+    try {
+        const res = await axios.get('https://cbu.uz/uz/arkhiv-kursov-valyut/json/');
+        const usd = res.data.find(d => d.Ccy === 'USD');
+        const eur = res.data.find(d => d.Ccy === 'EUR');
+        const rub = res.data.find(d => d.Ccy === 'RUB');
+        let text = `🇺🇿 <b>Markaziy Bank kurslari:</b>\n\n`;
+        text += `🇺🇸 1 USD = ${usd.Rate} UZS (${usd.Diff > 0 ? '📈 +'+usd.Diff : '📉 '+usd.Diff})\n`;
+        text += `🇪🇺 1 EUR = ${eur.Rate} UZS (${eur.Diff > 0 ? '📈 +'+eur.Diff : '📉 '+eur.Diff})\n`;
+        text += `🇷🇺 1 RUB = ${rub.Rate} UZS (${rub.Diff > 0 ? '📈 +'+rub.Diff : '📉 '+rub.Diff})\n`;
+        text += `\n<i>Sana: ${usd.Date}</i>`;
+        return text;
+    } catch(e) {
+        return "Valyuta kurslarini olishda xatolik.";
+    }
+};
+
+const generateChartUrl = (dates, tempsMax, tempsMin, regionName) => {
+    const chart = {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Maks. Harorat (°C)',
+                    data: tempsMax,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false
+                },
+                {
+                    label: 'Min. Harorat (°C)',
+                    data: tempsMin,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            title: { display: true, text: `${regionName} uchun 7 kunlik harorat grafigi` }
+        }
+    };
+    return `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chart))}&w=600&h=400`;
 };
 
 const checkExtremeWeather = (current) => {
@@ -229,8 +288,8 @@ const formatForecast = (data, regionName, t, days) => {
 const actionKeyboard = (lat, lon, regionName, t) => {
     return Markup.inlineKeyboard([
         [Markup.button.callback(t.today, `today_${regionName}`), Markup.button.callback(t.tomorrow, `tomor_${regionName}`)],
-        [Markup.button.callback(t.weekly, `week_${regionName}`), Markup.button.callback(t.agro, `agro_${regionName}`)],
-        [Markup.button.callback(t.prayer, `pray_${regionName}`)],
+        [Markup.button.callback(t.weekly, `week_${regionName}`), Markup.button.callback(t.graph, `graph_${regionName}`)],
+        [Markup.button.callback(t.agro, `agro_${regionName}`), Markup.button.callback(t.prayer, `pray_${regionName}`)],
         [Markup.button.callback(t.subscribe, `sub_${regionName}`)]
     ]);
 };
@@ -248,6 +307,36 @@ bot.hears(['⚙️ Sozlamalar', '⚙️ Созламалар', '⚙️ Наст�
         [Markup.button.callback("Ўзбекча (Кирилл)", "lang_uz_cyr")],
         [Markup.button.callback("Русский", "lang_ru")]
     ]));
+});
+
+bot.hears(['💵 Valyuta kurslari', '💵 Валюта курслари', '💵 Курсы валют'], async (ctx) => {
+    const text = await fetchCurrency();
+    ctx.replyWithHTML(text);
+});
+
+// AI Chatbot Logic
+bot.on('text', async (ctx) => {
+    const text = ctx.message.text;
+    if (text.startsWith('/')) return; // ignore commands
+    if (['⚙️ Sozlamalar', '⚙️ Созламалар', '⚙️ Настройки', '💵 Valyuta kurslari', '💵 Валюта курслари', '💵 Курсы валют'].includes(text)) return;
+    
+    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+        return ctx.reply("Siz AI (Sun'iy Intellekt) ga savol yozdingiz. Lekin bu funksiya ishlashi uchun bot kodiga Google Gemini API kalitini kiritishingiz kerak. \n\nKalitni olish uchun https://aistudio.google.com saytiga kiring.");
+    }
+
+    try {
+        ctx.sendChatAction('typing');
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `Sen O'zbekistonning eng aqlli ob-havo va kundalik botisan. 
+        Foydalanuvchi yozdi: "${text}". 
+        Agar u ob-havoga, kiyim kiyishga, qayergadir borishga maslahat so'rasa, qisqa, do'stona va foydali maslahat ber. 
+        Sen shuningdek har qanday savolga o'zbek tilida chiroyli javob bera olasan. Javobing qisqa va aniq bo'lsin.`;
+        
+        const result = await model.generateContent(prompt);
+        ctx.reply(result.response.text());
+    } catch (e) {
+        ctx.reply("Kechirasiz, sun'iy intellekt javob berishda xatolikka uchradi yoki limit tugadi.");
+    }
 });
 
 // Admin Panel commands
@@ -324,7 +413,7 @@ bot.action(/^reg_(.+)$/, async (ctx) => {
     }
 });
 
-bot.action(/^(today|tomor|week|agro|pray)_(.+)$/, async (ctx) => {
+bot.action(/^(today|tomor|week|agro|pray|graph)_(.+)$/, async (ctx) => {
     const action = ctx.match[1];
     const regionName = ctx.match[2];
     const t = getT(ctx);
@@ -338,16 +427,26 @@ bot.action(/^(today|tomor|week|agro|pray)_(.+)$/, async (ctx) => {
             const pt = await fetchPrayerTimes(lat, lon);
             if (!pt) throw new Error("API error");
             text = `🕌 <b>${regionName}</b> uchun bugungi namoz vaqtlari:\n\n🌅 Tong: ${pt.Fajr}\n🌄 Quyosh: ${pt.Sunrise}\n☀️ Peshin: ${pt.Dhuhr}\n🌤 Asr: ${pt.Asr}\n🌇 Shom: ${pt.Maghrib}\n🌙 Xufton: ${pt.Isha}`;
+            ctx.answerCbQuery();
+            ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
+        } else if (action === 'graph') {
+            const data = await fetchWeatherData(lat, lon);
+            const daily = data.weather.daily;
+            const dates = daily.time.map(d => new Date(d).toLocaleDateString('ru-RU'));
+            const chartUrl = generateChartUrl(dates, daily.temperature_2m_max, daily.temperature_2m_min, regionName);
+            
+            ctx.answerCbQuery();
+            ctx.replyWithPhoto({ url: chartUrl }, { caption: `📈 ${regionName} uchun 7 kunlik harorat grafigi` });
         } else {
             const data = await fetchWeatherData(lat, lon);
             if (action === 'today') text = formatCurrentWeather(data, regionName, t);
             else if (action === 'tomor') text = formatForecast(data, regionName, t, 1);
             else if (action === 'week') text = formatForecast(data, regionName, t, 7);
             else if (action === 'agro') text = formatAgro(data, regionName, t);
+            
+            ctx.answerCbQuery();
+            ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
         }
-        
-        ctx.answerCbQuery();
-        ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: actionKeyboard(lat, lon, regionName, t).reply_markup });
     } catch (e) {
         ctx.answerCbQuery(t.error);
     }
