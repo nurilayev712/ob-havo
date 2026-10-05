@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasan Nurillayev - Portfolio</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Custom CSS (Scrollbar) -->
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        dark: '#0f172a',
+                        card: '#1e293b',
+                        lightbg: '#f8fafc',
+                        lightcard: '#ffffff'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-lightbg dark:bg-dark text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300 overflow-x-hidden relative">
+
+    <!-- PRELOADER -->
+    <div id="preloader" class="fixed inset-0 z-[10000] bg-dark flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="relative flex items-center justify-center">
+            <div class="absolute w-28 h-28 border-4 border-transparent border-t-primary border-b-primary rounded-full animate-spin"></div>
+            <div class="absolute w-20 h-20 border-4 border-transparent border-l-blue-400 border-r-blue-400 rounded-full animate-[spin_reverse_1s_linear_infinite]"></div>
+            <span class="text-2xl font-bold text-white tracking-widest">&lt;H/&gt;</span>
+        </div>
+        <p class="text-primary mt-8 font-medium tracking-widest animate-pulse">XUSH KELIBSIZ...</p>
+    </div>
+
+    <!-- Navigatsiya -->
+    <nav class="fixed w-full bg-white/90 dark:bg-dark/95 backdrop-blur-md z-50 border-b border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-lg transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-900 dark:text-white tracking-widest">&lt;HASAN/&gt;</a>
+            
+            <div class="hidden lg:flex space-x-6 items-center">
+                <a href="#about" class="hover:text-primary transition font-medium" data-i18n="nav_about">Men haqimda</a>
+                <a href="#services" class="hover:text-primary transition font-medium" data-i18n="nav_services">Xizmatlar</a>
+                <a href="#skills" class="hover:text-primary transition font-medium" data-i18n="nav_skills">Ko'nikmalar</a>
+                <a href="#experience" class="hover:text-primary transition font-medium" data-i18n="nav_experience">Tajriba</a>
+                <a href="#projects" class="hover:text-primary transition font-medium" data-i18n="nav_projects">Loyihalar</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <select id="lang-switch" class="bg-gray-100 dark:bg-card text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-md py-1 px-2 text-sm focus:outline-none focus:border-primary">
+                    <option value="uz">UZ</option>
+                    <option value="en">EN</option>
+                    <option value="ru">RU</option>
+                </select>
+
+                <button id="theme-toggle" class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition text-xl">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+
+                <a href="#contact" class="hidden md:inline-block bg-primary hover:bg-blue-600 text-white px-5 py-2 rounded-full font-medium transition shadow-lg shadow-primary/30" data-i18n="nav_contact">
+                    Bog'lanish
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Asosiy qism (Hero) -->
+    <section id="about" class="relative pt-32 pb-16 px-4 min-h-screen flex items-center bg-gradient-to-b from-lightbg to-gray-100 dark:from-dark dark:to-card/20 transition-colors duration-300">
+        <!-- PARTICLES JS ORQA FON -->
+        <div id="particles-js" class="absolute inset-0 z-0 opacity-40"></div>
+        
+        <div class="max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center md:space-x-10 relative z-10">
+            <div class="md:w-3/5 text-center md:text-left mt-10 md:mt-0" data-aos="fade-right" data-aos-duration="1000">
+                <div class="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary font-medium text-sm mb-6" data-i18n="hero_badge">
+                    <i class="fas fa-code mr-2"></i> Dasturlash olamiga xush kelibsiz
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Hasan Nurillayev</h1>
+                
+                <h2 class="text-2xl md:text-3xl text-gray-600 dark:text-gray-400 mb-6 font-light h-10">
+                    <span data-i18n="hero_iam">Men</span> <span class="text-primary font-semibold" id="typed-text"></span>
+                </h2>
+
+                <p class="text-gray-600 dark:text-gray-400 text-lg mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed" data-i18n="hero_desc">
+                    HTML, CSS, Bootstrap, JavaScript va Python yordamida har qanday qurilmaga moslashuvchan veb-saytlar va avtomatlashtirilgan dasturlar ishlab chiqaman.
+                </p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                    <a href="#projects" class="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-full font-medium transition flex items-center shadow-lg shadow-primary/30" data-i18n="btn_projects">
+                        Loyihalarni ko'rish <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                    <a href="CV_Hasan_Nurillayev.pdf" download class="bg-white dark:bg-card border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-full font-medium transition flex items-center" data-i18n="btn_cv">
+                        <i class="fas fa-download mr-2"></i> CV Yuklash
+                    </a>
+                </div>
+            </div>
+            <div class="md:w-2/5 flex justify-center" data-aos="zoom-in" data-aos-duration="1000">
+                <div class="relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-full blur opacity-30 animate-pulse"></div>
+                    <!-- Vanilla Tilt orqali 3D kartochka -->
+                    <div data-tilt data-tilt-glare="true" data-tilt-max-glare="0.5" class="relative w-72 h-72 md:w-96 md:h-96 bg-white dark:bg-card rounded-full flex items-center justify-center border-4 border-gray-200 dark:border-gray-800 shadow-2xl transition-colors duration-300">
+                        <i class="fas fa-laptop-code text-9xl text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Xizmatlar -->
+    <section id="services" class="py-24 bg-gray-50 dark:bg-card/50 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-i18n="services_title">Mening Xizmatlarim</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Vanilla Tilt 3D Effekt -->
+                <div data-tilt data-tilt-max="15" data-tilt-speed="400" class="bg-white dark:bg-dark p-8 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-primary transition group shadow-md dark:shadow-none" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition">
+                        <i class="fas fa-code text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="srv_1_title">Vebsayt Frontendi</h3>
+                    <p class="text-gray-600 dark:text-gray-400" data-i18n="srv_1_desc">Zamonaviy, tez ishlaydigan va chiroyli veb-sayt dizaynlarini yarataman.</p>
+                </div>
+                <div data-tilt data-tilt-max="15" data-tilt-speed="400" class="bg-white dark:bg-dark p-8 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-400 transition group shadow-md dark:shadow-none" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-16 h-16 bg-blue-400/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-400/20 transition">
+                        <i class="fab fa-python text-3xl text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="srv_2_title">Python Loyihalar</h3>
+                    <p class="text-gray-600 dark:text-gray-400" data-i18n="srv_2_desc">Python yordamida skriptlar va avtomatlashtirish jarayonlarini yozaman.</p>
+                </div>
+                <div data-tilt data-tilt-max="15" data-tilt-speed="400" class="bg-white dark:bg-dark p-8 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#0088cc] transition group shadow-md dark:shadow-none" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-16 h-16 bg-[#0088cc]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#0088cc]/20 transition">
+                        <i class="fab fa-telegram-plane text-3xl text-[#0088cc]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="srv_3_title">Telegram Botlar</h3>
+                    <p class="text-gray-600 dark:text-gray-400" data-i18n="srv_3_desc">Biznes uchun Python orqali aqlli va tezkor Telegram botlarni dasturlab beraman.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loyihalar qismiga ham 3D qo'shildi (Qisqartirilgan) -->
+    <section id="projects" class="py-24 bg-white dark:bg-dark transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16" data-aos="zoom-in">
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-i18n="nav_projects">Loyihalar</h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Loyiha 3D -->
+                <div data-tilt data-tilt-max="5" data-tilt-glare="true" data-tilt-max-glare="0.2" class="bg-gray-50 dark:bg-card rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 transition duration-300 shadow-lg">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                        <i class="fas fa-browser text-6xl text-gray-400"></i>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Frontend Loyiha</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">HTML, CSS, JS orqali yozilgan zamonaviy veb-sayt dizayni.</p>
+                    </div>
+                </div>
+                <!-- Loyiha 3D -->
+                <div data-tilt data-tilt-max="5" data-tilt-glare="true" data-tilt-max-glare="0.2" class="bg-gray-50 dark:bg-card rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 transition duration-300 shadow-lg">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                        <i class="fab fa-python text-6xl text-blue-400"></i>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Python Tizimi</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Ma'lumotlarni qayta ishlash va avtomatlashtirish botlari.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ALOQA FORMASI VA BOG'LANISH (YANGILANGAN) -->
+    <section id="contact" class="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-card/30 dark:to-dark border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Chap tomon (Ma'lumot) -->
+                <div data-aos="fade-right">
+                    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-6" data-i18n="contact_title">Menga xabar yuboring</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-8 text-lg" data-i18n="contact_desc">Yangi loyihalar ustida ishlashga tayyorman. Menga quyidagi forma orqali yozing yoki Telegramdan aloqaga chiqing.</p>
+                    
+                    <a href="https://t.me/HASAN_712" target="_blank" class="inline-flex items-center justify-center bg-[#0088cc] hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition duration-300 shadow-lg hover:-translate-y-1">
+                        <i class="fab fa-telegram-plane mr-3 text-2xl"></i> @HASAN_712
+                    </a>
+                </div>
+                
+                <!-- O'ng tomon (Aloqa Formasi) -->
+                <div class="bg-white dark:bg-card p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800" data-aos="fade-left">
+                    <form action="https://api.web3forms.com/submit" method="POST" class="space-y-6">
+                        <!-- DIQQAT: Web3Forms orqali ro'yxatdan o'tib o'z KEY'ingizni shu yerga qo'ying -->
+                        <input type="hidden" name="access_key" value="62b1f782-9f3f-41c1-b0b1-13ec9aec940c">
+                        
+                        <div>
+                            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-2" data-i18n="form_name">Ismingiz</label>
+                            <input type="text" name="name" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-2" data-i18n="form_email">Email</label>
+                            <input type="email" name="email" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-2" data-i18n="form_msg">Xabaringiz</label>
+                            <textarea name="message" rows="4" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition" data-i18n="form_btn">
+                            Xabar Yuborish
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEPAGA QAYTISH TUGMASI (Back to top) -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center opacity-0 invisible transition-all duration-300 shadow-lg shadow-primary/30 z-50 hover:bg-blue-600 hover:-translate-y-2">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-dark py-10 border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2024 Hasan Nurillayev. <span data-i18n="footer_rights">Barcha huquqlar himoyalangan.</span></p>
+        </div>
+    </footer>
+
+    <!-- Scripts (AOS, TypedJS, ParticlesJS, VanillaTilt) -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    
+    <script>
+        // 1. PRELOADER
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    AOS.refresh();
+                }, 700);
+            }, 800);
+        });
+
+        // 2. AOS Animatsiyalar
+        AOS.init({ once: true, offset: 80, duration: 800 });
+
+        // 3. TYPING EFFECT
+        let typed = new Typed('#typed-text', {
+            strings: ['Veb Dasturchiman', 'Python Dasturchiman', 'Botlar yaratuvchiman'],
+            typeSpeed: 50, backSpeed: 30, backDelay: 2000, loop: true
+        });
+
+        // 4. PARTICLES.JS (Orqa fondagi harakatlanuvchi zarrachalar)
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#3b82f6" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": false },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#3b82f6", "opacity": 0.4, "width": 1 },
+                "move": { "enable": true, "speed": 3, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "grab" },
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": { "distance": 140, "line_linked": { "opacity": 1 } },
+                    "push": { "particles_nb": 4 }
+                }
+            },
+            "retina_detect": true
+        });
+
+        // 5. BACK TO TOP (Tepaga qaytish tugmasi)
+        const btt = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                btt.classList.remove('opacity-0', 'invisible');
+                btt.classList.add('opacity-100', 'visible');
+            } else {
+                btt.classList.add('opacity-0', 'invisible');
+                btt.classList.remove('opacity-100', 'visible');
+            }
+        });
+        btt.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 6. DARK/LIGHT MODE 
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        themeToggleBtn.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if(html.classList.contains('dark')) {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+
+        // 7. MULTI-LANGUAGE
+        const translations = {
+            uz: {
+                nav_about: "Men haqimda", nav_services: "Xizmatlar", nav_skills: "Ko'nikmalar", nav_experience: "Tajriba", nav_projects: "Loyihalar", nav_contact: "Bog'lanish",
+                hero_badge: "<i class='fas fa-code mr-2'></i> Dasturlash olamiga xush kelibsiz",
+                hero_iam: "Men", 
+                hero_desc: "HTML, CSS, Bootstrap, JavaScript va Python yordamida har qanday qurilmaga moslashuvchan veb-saytlar va avtomatlashtirilgan dasturlar ishlab chiqaman.",
+                btn_projects: "Loyihalarni ko'rish <i class='fas fa-arrow-right ml-2'></i>", btn_cv: "<i class='fas fa-download mr-2'></i> CV Yuklash",
+                services_title: "Mening Xizmatlarim",
+                srv_1_title: "Vebsayt Frontendi", srv_1_desc: "Zamonaviy, tez ishlaydigan va chiroyli veb-sayt dizaynlarini yarataman.",
+                srv_2_title: "Python Loyihalar", srv_2_desc: "Python yordamida skriptlar va avtomatlashtirish jarayonlarini yozaman.",
+                srv_3_title: "Telegram Botlar", srv_3_desc: "Biznes uchun Python orqali aqlli va tezkor Telegram botlarni dasturlab beraman.",
+                contact_title: "Menga xabar yuboring", contact_desc: "Yangi loyihalar ustida ishlashga tayyorman. Menga quyidagi forma orqali yozing yoki Telegramdan aloqaga chiqing.",
+                form_name: "Ismingiz", form_email: "Email", form_msg: "Xabaringiz", form_btn: "Xabar Yuborish",
+                footer_rights: "Barcha huquqlar himoyalangan."
+            },
+            en: {
+                nav_about: "About Me", nav_services: "Services", nav_skills: "Skills", nav_experience: "Experience", nav_projects: "Projects", nav_contact: "Contact",
+                hero_badge: "<i class='fas fa-code mr-2'></i> Welcome to my coding world",
+                hero_iam: "I am a",
+                hero_desc: "I build responsive websites and automated applications using HTML, CSS, Bootstrap, JavaScript, and Python.",
+                btn_projects: "View Projects <i class='fas fa-arrow-right ml-2'></i>", btn_cv: "<i class='fas fa-download mr-2'></i> Download CV",
+                services_title: "My Services",
+                srv_1_title: "Website Frontend", srv_1_desc: "I create modern, fast, and beautiful website designs.",
+                srv_2_title: "Python Projects", srv_2_desc: "I write scripts and automation processes using Python.",
+                srv_3_title: "Telegram Bots", srv_3_desc: "I program smart and fast Telegram bots via Python for business.",
+                contact_title: "Send me a message", contact_desc: "I am open to new projects. Write to me via the form below or contact me on Telegram.",
+                form_name: "Your Name", form_email: "Email", form_msg: "Your Message", form_btn: "Send Message",
+                footer_rights: "All rights reserved."
+            },
+            ru: {
+                nav_about: "Обо мне", nav_services: "Услуги", nav_skills: "Навыки", nav_experience: "Опыт", nav_projects: "Проекты", nav_contact: "Контакты",
+                hero_badge: "<i class='fas fa-code mr-2'></i> Добро пожаловать в мир кода",
+                hero_iam: "Я",
+                hero_desc: "Я создаю адаптивные веб-сайты и автоматизированные программы с использованием HTML, CSS, Bootstrap, JavaScript и Python.",
+                btn_projects: "Смотреть проекты <i class='fas fa-arrow-right ml-2'></i>", btn_cv: "<i class='fas fa-download mr-2'></i> Скачать CV",
+                services_title: "Мои Услуги",
+                srv_1_title: "Фронтенд сайтов", srv_1_desc: "Создаю современные, быстрые и красивые дизайны сайтов.",
+                srv_2_title: "Python Проекты", srv_2_desc: "Пишу скрипты и процессы автоматизации с помощью Python.",
+                srv_3_title: "Telegram Боты", srv_3_desc: "Разрабатываю умных Telegram ботов на Python для бизнеса.",
+                contact_title: "Отправьте мне сообщение", contact_desc: "Я открыт для новых проектов. Напишите мне через форму ниже или свяжитесь в Telegram.",
+                form_name: "Ваше Имя", form_email: "Email", form_msg: "Ваше Сообщение", form_btn: "Отправить Сообщение",
+                footer_rights: "Все права защищены."
+            }
+        };
+
+        const langSwitch = document.getElementById('lang-switch');
+        
+        langSwitch.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            
+            typed.destroy();
+            let strings = [];
+            if(lang === 'uz') strings = ['Veb Dasturchiman', 'Python Dasturchiman', 'Botlar yaratuvchiman'];
+            if(lang === 'en') strings = ['Web Developer', 'Python Developer', 'Bot Creator'];
+            if(lang === 'ru') strings = ['Веб-разработчик', 'Python Разработчик', 'Создатель Ботов'];
+            
+            typed = new Typed('#typed-text', {
+                strings: strings, typeSpeed: 50, backSpeed: 30, backDelay: 2000, loop: true
+            });
+        });
+    </script>
+</body>
+</html>

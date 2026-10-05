@@ -7,7 +7,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-const token = '8653744492:AAHxdUwVkrKPhBraaas6eeBNjT-Vn1_FRmQ';
+const token = process.env.BOT_TOKEN || 'Token kiritilmagan!';
 const bot = new Telegraf(token);
 const ADMIN_PASSWORD = "havo_admin_2026";
 
