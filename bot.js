@@ -282,6 +282,56 @@ bot.command('stats', (ctx) => {
     ctx.reply(`📊 Jami foydalanuvchilar: ${Object.keys(db).length}`);
 });
 
+bot.command('broadcast', (ctx) => {
+    if (!getUser(ctx).isAdmin) return;
+    const msg = ctx.message.text.substring(10).trim();
+    if (!msg) return ctx.reply("Xabar matnini kiriting. Masalan: /broadcast Assalomu alaykum!");
+    let count = 0;
+    for (const chatId in db) {
+        bot.telegram.sendMessage(chatId, `📢 <b>Admin xabari:</b>\n\n${msg}`, { parse_mode: 'HTML' }).then(() => count++).catch(() => {});
+    }
+    ctx.reply(`Xabar ${Object.keys(db).length} ta foydalanuvchiga yuborilmoqda...`);
+});
+
+bot.on('location', async (ctx) => {
+    const lat = ctx.message.location.latitude;
+    const lon = ctx.message.location.longitude;
+    const t = getT(ctx);
+    
+    let nearest = "Toshkent";
+    let minDist = Infinity;
+    for (const [name, coords] of Object.entries(REGIONS)) {
+        const dist = Math.pow(coords.lat - lat, 2) + Math.pow(coords.lon - lon, 2);
+        if (dist < minDist) {
+            minDist = dist;
+            nearest = name;
+        }
+    }
+    
+    try {
+        const data = await fetchWeatherData(REGIONS[nearest].lat, REGIONS[nearest].lon);
+        const text = formatCurrentWeather(data, nearest, t);
+        ctx.replyWithHTML(`📍 Sizga eng yaqin hudud: <b>${nearest}</b>\n\n` + text, actionKeyboard(REGIONS[nearest].lat, REGIONS[nearest].lon, nearest, t));
+    } catch (e) {
+        ctx.reply(t.error);
+    }
+});
+
+bot.on('text', async (ctx) => {
+    const text = ctx.message.text;
+    if (text.startsWith('/')) return;
+    try {
+        if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE" || !GEMINI_API_KEY) {
+             return ctx.reply("Hozircha men faqat tugmalar orqali ishlayman. 🌤️ Ob-havoni bilish uchun qaysidir viloyatni tanlang yoki pastdagi tugmalardan foydalaning.", getRegionsKeyboard());
+        }
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(`Sen ob-havo va tabiat bo'yicha yordamchisan. Savollarga qisqa va aniq o'zbek tilida javob ber. Foydalanuvchi: ${text}`);
+        ctx.reply(result.response.text());
+    } catch(e) {
+        ctx.reply("Hozircha faqat tugmalardan foydalaning.", getRegionsKeyboard());
+    }
+});
+
 bot.action(/^reg_(.+)$/, async (ctx) => {
     const regionName = ctx.match[1];
     if (!REGIONS[regionName]) return ctx.answerCbQuery();
