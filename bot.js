@@ -470,6 +470,15 @@ const app = express();
 
 app.get('/', (req, res) => res.send('Bot ishladi va Webhook orqali ulandi! 🚀'));
 
+app.get('/test', async (req, res) => {
+    try {
+        const data = await fetchWeatherData(41.2995, 69.2401);
+        res.json(data);
+    } catch (e) {
+        res.status(500).send("Xatolik: " + e.message);
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
 
