@@ -128,19 +128,19 @@ const fetchWeatherData = async (lat, lon) => {
     
     const opts = { headers: { 'User-Agent': 'ObHavoBot/1.0 (https://t.me/obhavo712_bot)' } };
     
-    const [weatherReq, aqiReq, kpReq] = await Promise.all([
-        axios.get(url, opts).catch(() => null),
-        axios.get(aqiUrl, opts).catch(() => null),
-        axios.get(kpUrl, opts).catch(() => null)
-    ]);
-    
-    let kpIndex = 0;
-    if (kpReq && kpReq.data) {
-        const latest = kpReq.data[kpReq.data.length - 1];
-        kpIndex = parseFloat(latest[1]);
-    }
-    
-    if (weatherReq && weatherReq.data) {
+    try {
+        const [weatherReq, aqiReq, kpReq] = await Promise.all([
+            axios.get(url, opts),
+            axios.get(aqiUrl, opts).catch(() => null),
+            axios.get(kpUrl, opts).catch(() => null)
+        ]);
+        
+        let kpIndex = 0;
+        if (kpReq && kpReq.data) {
+            const latest = kpReq.data[kpReq.data.length - 1];
+            kpIndex = parseFloat(latest[1]);
+        }
+        
         const result = {
             weather: weatherReq.data,
             aqi: aqiReq ? aqiReq.data : null,
@@ -148,9 +148,9 @@ const fetchWeatherData = async (lat, lon) => {
         };
         weatherCache[cacheKey] = { timestamp: now, data: result };
         return result;
-    } else {
+    } catch (error) {
         if (weatherCache[cacheKey]) return weatherCache[cacheKey].data;
-        throw new Error("API xatosi");
+        throw new Error(error.response ? JSON.stringify(error.response.data) : error.message);
     }
 };
 
