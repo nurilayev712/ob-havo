@@ -22,6 +22,20 @@ if (fs.existsSync(DB_FILE)) {
 }
 const saveDb = () => fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 
+bot.use((ctx, next) => {
+    const from = ctx.from;
+    if (from) {
+        const id = from.id;
+        if (!db[id]) db[id] = { lang: 'uz', subscribed: false, isAdmin: false };
+        
+        db[id].first_name = from.first_name || '';
+        db[id].username = from.username ? `@${from.username}` : '';
+        db[id].last_active = Date.now();
+        saveDb();
+    }
+    return next();
+});
+
 const getUser = (ctx) => {
     const id = ctx.chat?.id || ctx.from?.id;
     if (!db[id]) db[id] = { lang: 'uz', subscribed: false, isAdmin: false };
@@ -280,6 +294,28 @@ bot.command('admin', (ctx) => {
 bot.command('stats', (ctx) => {
     if (!getUser(ctx).isAdmin) return;
     ctx.reply(`📊 Jami foydalanuvchilar: ${Object.keys(db).length}`);
+});
+
+bot.command('users', (ctx) => {
+    if (!getUser(ctx).isAdmin) return;
+    let usersArray = Object.entries(db).map(([id, user]) => ({id, ...user}));
+    usersArray.sort((a, b) => (b.last_active || 0) - (a.last_active || 0));
+    
+    usersArray = usersArray.slice(0, 50);
+    
+    let text = "👥 <b>Foydalanuvchilar (So'nggi faollar):</b>\n\n";
+    let count = 1;
+    for (const u of usersArray) {
+        const name = u.first_name || "Noma'lum";
+        const username = u.username ? ` (${u.username})` : "";
+        let dateStr = "Noma'lum";
+        if (u.last_active) {
+            dateStr = new Date(u.last_active).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
+        }
+        text += `${count}. <a href="tg://user?id=${u.id}">${name}</a>${username}\n⏳ Oxirgi: ${dateStr}\n\n`;
+        count++;
+    }
+    ctx.replyWithHTML(text);
 });
 
 bot.command('broadcast', (ctx) => {
