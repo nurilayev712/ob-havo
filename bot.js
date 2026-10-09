@@ -113,15 +113,25 @@ const getRegionsKeyboard = () => {
     return Markup.inlineKeyboard(keyboard);
 };
 
+const weatherCache = {};
+
 const fetchWeatherData = async (lat, lon) => {
+    const cacheKey = `${lat}_${lon}`;
+    const now = Date.now();
+    if (weatherCache[cacheKey] && now - weatherCache[cacheKey].timestamp < 15 * 60 * 1000) {
+        return weatherCache[cacheKey].data;
+    }
+    
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,soil_temperature_0cm&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&timezone=auto`;
     const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10,pm2_5&timezone=auto`;
     const kpUrl = `https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json`;
     
+    const opts = { headers: { 'User-Agent': 'ObHavoBot/1.0 (https://t.me/obhavo712_bot)' } };
+    
     const [weatherReq, aqiReq, kpReq] = await Promise.all([
-        axios.get(url).catch(() => null),
-        axios.get(aqiUrl).catch(() => null),
-        axios.get(kpUrl).catch(() => null)
+        axios.get(url, opts).catch(() => null),
+        axios.get(aqiUrl, opts).catch(() => null),
+        axios.get(kpUrl, opts).catch(() => null)
     ]);
     
     let kpIndex = 0;
@@ -130,11 +140,18 @@ const fetchWeatherData = async (lat, lon) => {
         kpIndex = parseFloat(latest[1]);
     }
     
-    return {
-        weather: weatherReq ? weatherReq.data : null,
-        aqi: aqiReq ? aqiReq.data : null,
-        kp: kpIndex
-    };
+    if (weatherReq && weatherReq.data) {
+        const result = {
+            weather: weatherReq.data,
+            aqi: aqiReq ? aqiReq.data : null,
+            kp: kpIndex
+        };
+        weatherCache[cacheKey] = { timestamp: now, data: result };
+        return result;
+    } else {
+        if (weatherCache[cacheKey]) return weatherCache[cacheKey].data;
+        throw new Error("API xatosi");
+    }
 };
 
 const fetchPrayerTimes = async (lat, lon) => {
