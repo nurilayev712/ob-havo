@@ -15,6 +15,7 @@
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.20.0",
     "express": "^5.2.1",
+    "mongoose": "^9.11.1",
     "node-cron": "^4.6.0",
     "node-telegram-bot-api": "^2.1.0",
     "telegraf": "^4.16.3"
