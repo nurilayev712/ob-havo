@@ -115,6 +115,18 @@ const getRegionsKeyboard = () => {
 
 const weatherCache = {};
 
+const metNoEmoji = (sym) => {
+    if (!sym) return "☁️";
+    if (sym.includes('clear') || sym.includes('fair')) return "☀️ Ochiq havo";
+    if (sym.includes('partlycloudy')) return "⛅ Qisman bulutli";
+    if (sym.includes('cloudy')) return "☁️ Bulutli";
+    if (sym.includes('rain')) return "🌧️ Yomg'ir";
+    if (sym.includes('snow')) return "❄️ Qor";
+    if (sym.includes('thunder')) return "⛈️ Momaqaldiroq";
+    if (sym.includes('fog')) return "🌫️ Tuman";
+    return "☁️ Bulutli";
+};
+
 const fetchWeatherData = async (lat, lon) => {
     const cacheKey = `${lat}_${lon}`;
     const now = Date.now();
@@ -122,30 +134,53 @@ const fetchWeatherData = async (lat, lon) => {
         return weatherCache[cacheKey].data;
     }
     
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,soil_temperature_0cm&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&timezone=auto`;
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10,pm2_5&timezone=auto`;
-    const kpUrl = `https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json`;
-    
+    const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
     const opts = { headers: { 'User-Agent': 'ObHavoBot/1.0 (https://t.me/obhavo712_bot)' } };
     
     try {
-        const [weatherReq, aqiReq, kpReq] = await Promise.all([
-            axios.get(url, opts),
-            axios.get(aqiUrl, opts).catch(() => null),
-            axios.get(kpUrl, opts).catch(() => null)
-        ]);
+        const res = await axios.get(url, opts);
+        const ts = res.data.properties.timeseries;
         
-        let kpIndex = 0;
-        if (kpReq && kpReq.data) {
-            const latest = kpReq.data[kpReq.data.length - 1];
-            kpIndex = parseFloat(latest[1]);
+        const current = ts[0];
+        const cData = current.data.instant.details;
+        const sym = current.data.next_1_hours?.summary?.symbol_code || current.data.next_6_hours?.summary?.symbol_code || '';
+        
+        const dailyMap = {};
+        for (const t of ts) {
+            const date = t.time.substring(0, 10);
+            if (!dailyMap[date]) dailyMap[date] = { max: -999, min: 999, symbol: '', precip: 0 };
+            const temp = t.data.instant.details.air_temperature;
+            if (temp > dailyMap[date].max) dailyMap[date].max = temp;
+            if (temp < dailyMap[date].min) dailyMap[date].min = temp;
+            if (!dailyMap[date].symbol) dailyMap[date].symbol = t.data.next_6_hours?.summary?.symbol_code || t.data.next_12_hours?.summary?.symbol_code;
+            dailyMap[date].precip += (t.data.next_1_hours?.details?.precipitation_amount || 0);
         }
         
+        const dates = Object.keys(dailyMap).slice(0, 7);
+        
         const result = {
-            weather: weatherReq.data,
-            aqi: aqiReq ? aqiReq.data : null,
-            kp: kpIndex
+            weather: {
+                current: {
+                    temperature_2m: cData.air_temperature,
+                    relative_humidity_2m: cData.relative_humidity,
+                    apparent_temperature: cData.air_temperature,
+                    precipitation: current.data.next_1_hours?.details?.precipitation_amount || 0,
+                    wind_speed_10m: (cData.wind_speed * 3.6).toFixed(1),
+                    weather_code: 999,
+                    condition_text: metNoEmoji(sym)
+                },
+                daily: {
+                    time: dates,
+                    temperature_2m_max: dates.map(d => dailyMap[d].max),
+                    temperature_2m_min: dates.map(d => dailyMap[d].min),
+                    condition_text: dates.map(d => metNoEmoji(dailyMap[d].symbol)),
+                    precipitation_sum: dates.map(d => dailyMap[d].precip)
+                }
+            },
+            aqi: null,
+            kp: 0
         };
+        
         weatherCache[cacheKey] = { timestamp: now, data: result };
         return result;
     } catch (error) {
@@ -196,7 +231,7 @@ const generateChartUrl = (dates, tempsMax, tempsMin, regionName) => {
 
 const formatCurrentWeather = (data, regionName, t) => {
     const w = data.weather.current;
-    const condition = t.condition[w.weather_code] || "Noma'lum";
+    const condition = w.condition_text || t.condition[w.weather_code] || "Noma'lum";
     
     let warnings = [];
     if (w.wind_speed_10m > 40) warnings.push("⚠️ KUCHLI SHAMOL XAVFI!");
@@ -245,7 +280,7 @@ const formatForecast = (data, regionName, t, days) => {
     const limit = days === 1 ? 2 : 7;
     for (let i = (days === 1 ? 1 : 0); i < limit; i++) {
         const date = new Date(daily.time[i]).toLocaleDateString('ru-RU');
-        const cond = t.condition[daily.weather_code[i]] || "";
+        const cond = daily.condition_text?.[i] || t.condition[daily.weather_code?.[i]] || "";
         text += `📅 <b>${date}</b>: ${cond} | ${daily.temperature_2m_min[i]}°C...${daily.temperature_2m_max[i]}°C\n`;
     }
     return text;
