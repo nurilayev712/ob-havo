@@ -579,7 +579,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => res.send('Bot ishladi va Webhook orqali ulandi! 🚀 v2.0'));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
 
 if (RENDER_URL) {
