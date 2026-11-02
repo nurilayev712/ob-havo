@@ -6,6 +6,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+axios.defaults.timeout = 7000;
 
 const token = process.env.BOT_TOKEN || Buffer.from('ODY1Mzc0NDQ5MjpBQUZGNFhNLXFzcGNBbUFJbUhHcVZrcFlwRjY2ZHJNZG1TWQ==', 'base64').toString('utf-8');
 const bot = new Telegraf(token);
@@ -253,18 +254,40 @@ const fetchPrayerTimes = async (lat, lon) => {
     } catch(e) { return null; }
 };
 
+let currencyCache = { timestamp: 0, textUz: '', textRu: '' };
+
 const fetchCurrency = async (lang) => {
+    const now = Date.now();
+    if (now - currencyCache.timestamp < 30 * 60 * 1000 && currencyCache.textUz) {
+        return lang === 'ru' ? currencyCache.textRu : currencyCache.textUz;
+    }
     try {
-        const res = await axios.get('https://cbu.uz/uz/arkhiv-kursov-valyut/json/');
+        const res = await axios.get('https://cbu.uz/uz/arkhiv-kursov-valyut/json/', { timeout: 4000 });
         const usd = res.data.find(d => d.Ccy === 'USD');
         const eur = res.data.find(d => d.Ccy === 'EUR');
         const rub = res.data.find(d => d.Ccy === 'RUB');
-        let text = lang === 'ru' ? `🇷🇺 <b>Курсы ЦБ РУз:</b>\n\n` : `🇺🇿 <b>Markaziy Bank kurslari:</b>\n\n`;
-        text += `🇺🇸 1 USD = ${usd.Rate} UZS\n`;
-        text += `🇪🇺 1 EUR = ${eur.Rate} UZS\n`;
-        text += `🇷🇺 1 RUB = ${rub.Rate} UZS\n`;
-        return text;
-    } catch(e) { return "Xatolik / Ошибка."; }
+        const textUz = `🇺🇿 <b>Markaziy Bank kurslari:</b>\n\n🇺🇸 1 USD = ${usd.Rate} UZS\n🇪🇺 1 EUR = ${eur.Rate} UZS\n🇷🇺 1 RUB = ${rub.Rate} UZS\n`;
+        const textRu = `🇷🇺 <b>Курсы ЦБ РУз:</b>\n\n🇺🇸 1 USD = ${usd.Rate} UZS\n🇪🇺 1 EUR = ${eur.Rate} UZS\n🇷🇺 1 RUB = ${rub.Rate} UZS\n`;
+        currencyCache = { timestamp: now, textUz, textRu };
+        return lang === 'ru' ? textRu : textUz;
+    } catch(e) {
+        try {
+            const fallback = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 4000 });
+            const rates = fallback.data.rates;
+            const usdRate = rates.UZS ? rates.UZS.toFixed(2) : "Noma'lum";
+            const eurRate = (rates.UZS && rates.EUR) ? (rates.UZS / rates.EUR).toFixed(2) : "Noma'lum";
+            const rubRate = (rates.UZS && rates.RUB) ? (rates.UZS / rates.RUB).toFixed(2) : "Noma'lum";
+            const textUz = `🇺🇿 <b>Xalqaro valyuta kurslari:</b>\n\n🇺🇸 1 USD = ${usdRate} UZS\n🇪🇺 1 EUR = ${eurRate} UZS\n🇷🇺 1 RUB = ${rubRate} UZS\n`;
+            const textRu = `🇷🇺 <b>Международные курсы валют:</b>\n\n🇺🇸 1 USD = ${usdRate} UZS\n🇪🇺 1 EUR = ${eurRate} UZS\n🇷🇺 1 RUB = ${rubRate} UZS\n`;
+            currencyCache = { timestamp: now, textUz, textRu };
+            return lang === 'ru' ? textRu : textUz;
+        } catch(err) {
+            if (currencyCache.textUz) {
+                return lang === 'ru' ? currencyCache.textRu : currencyCache.textUz;
+            }
+            return lang === 'ru' ? "Не удалось загрузить курсы валют." : "Valyuta kurslarini olib bo'lmadi.";
+        }
+    }
 };
 
 const generateChartUrl = (dates, tempsMax, tempsMin, regionName) => {
